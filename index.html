@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>马原人格辩证仪 | 浙工大课程互动</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1a2e;
+            font-family: 'Segoe UI', 'Georgia', serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #8B0000, #5C0000);
+            color: #F5E6C8;
+            padding: 30px 20px;
+            border-radius: 28px 28px 0 0;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .quiz-card {
+            background: #FFF8F0;
+            padding: 25px;
+            border-radius: 0 0 28px 28px;
+        }
+        .question {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #f0e0c0;
+        }
+        .question-text {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #3d2a1a;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid #b54a1a;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            margin: 8px 0;
+            background: #fefaf5;
+            border-radius: 40px;
+            cursor: pointer;
+            border: 1px solid #e8d8c0;
+        }
+        .option:hover {
+            background: #f5e8d8;
+            border-color: #c4864a;
+        }
+        input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #8B0000;
+        }
+        label {
+            flex: 1;
+            cursor: pointer;
+            color: #2c241a;
+            font-size: 0.95rem;
+        }
+        .btn {
+            background: #8B0000;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fef3e4;
+            border-radius: 20px;
+            border-left: 6px solid #b54a1a;
+            display: none;
+        }
+        .result h2 {
+            color: #5a2a1a;
+            margin-bottom: 15px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #b89a70;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e8d8c0;
+        }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .quiz-card { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>⚙️ 马原人格辩证仪 📖</h1>
+        <p>你的思维风格，更接近哪位马克思主义思想家？</p>
+    </div>
+    <div class="quiz-card">
+        <div id="questions"></div>
+        <button class="btn" id="submitBtn">🌿 解读我的人格 🌿</button>
+        <div id="result" class="result"></div>
+        <div class="footer">吴依涵 · 浙江工业大学 马克思主义基本原理课程作业</div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        "当你面对复杂的社会问题时，你更习惯从哪个角度切入？",
+        "你更认同哪种推动社会进步的方式？",
+        "对于理论和实践的关系，你的观点更接近？",
+        "你认为现代社会中最需要警惕的异化现象是？",
+        "在集体行动中，你更倾向于扮演哪种角色？"
+    ];
+
+    const options = [
+        ["分析经济结构和物质利益冲突", "观察日常互动和自发合作", "思考文化观念和媒体叙事", "关注个体心理和情感需求"],
+        ["抓住主要矛盾果断行动", "依靠基层自发组织", "建立纪律严明的先锋团队", "通过教育和艺术改变认知"],
+        ["理论掌握群众变成物质力量", "实践是检验真理的唯一标准", "没有革命理论就没有革命运动", "批判本身就是实践"],
+        ["劳动产品与工人分离", "人际关系被金钱取代", "消费主义制造虚假需求", "现代人的孤独和意义丧失"],
+        ["战略分析者", "联络组织者", "纪律协调者", "文化倡导者"]
+    ];
+
+    const results = {
+        marx: { name: "卡尔·马克思", desc: "你拥有强大的批判精神和结构思维，习惯从经济基础入手分析问题，相信矛盾推动历史发展。", quote: "哲学家们只是用不同方式解释世界，而问题在于改变世界。——《关于费尔巴哈的提纲》" },
+        engels: { name: "弗里德里希·恩格斯", desc: "你擅长整体把握，注重多种因素的相互作用，善于在复杂系统中寻找平衡。", quote: "历史是这样创造的：最终的结果总是从许多单个的意志的相互冲突中产生出来。——《致约瑟夫·布洛赫》" },
+        luxemburg: { name: "罗莎·卢森堡", desc: "你相信普通人的创造力，警惕官僚化，热情且富有同理心。", quote: "自由始终是持不同思想者的自由。——《俄国的悲剧》" },
+        lenin: { name: "弗拉基米尔·列宁", desc: "你重视策略、纪律与时机，善于在复杂局势中找到突破口，务实而果决。", quote: "没有革命的理论，就不会有革命的运动。——《怎么办？》" },
+        gramsci: { name: "安东尼奥·葛兰西", desc: "你敏锐地意识到权力渗透在语言、教育和日常认知中，擅长文化分析。", quote: "要统治一个社会，不仅要掌握暴力，还要掌握同意。——《狱中札记》" },
+        fromm: { name: "埃里希·弗洛姆", desc: "你关注现代人的孤独与焦虑，温暖而敏感，相信爱也是一种反抗。", quote: "人道主义的社会主义之目标，乃是建立一个真正适合人类需要的社会。——《占有还是存在》" }
+    };
+
+    function render() {
+        const container = document.getElementById("questions");
+        container.innerHTML = "";
+        for (let i = 0; i < questions.length; i++) {
+            let qDiv = document.createElement("div");
+            qDiv.className = "question";
+            qDiv.innerHTML = `<div class="question-text">${i+1}. ${questions[i]}</div>`;
+            for (let j = 0; j < options[i].length; j++) {
+                qDiv.innerHTML += `
+                    <div class="option" onclick="document.getElementById('q${i}_${j}').click();">
+                        <input type="radio" name="q${i}" id="q${i}_${j}" value="${j}">
+                        <label for="q${i}_${j}">${options[i][j]}</label>
+                    </div>
+                `;
+            }
+            container.appendChild(qDiv);
+        }
+    }
+
+    function getResult() {
+        let scores = { a:0, b:0, c:0, d:0 };
+        for (let i = 0; i < questions.length; i++) {
+            let selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (!selected) return null;
+            let val = parseInt(selected.value);
+            if (val === 0) scores.a++;
+            else if (val === 1) scores.b++;
+            else if (val === 2) scores.c++;
+            else if (val === 3) scores.d++;
+        }
+        let max = Math.max(scores.a, scores.b, scores.c, scores.d);
+        if (max === scores.a) return "marx";
+        if (max === scores.b) return "luxemburg";
+        if (max === scores.c) return "lenin";
+        return "gramsci";
+    }
+
+    function showResult() {
+        let type = getResult();
+        if (!type) {
+            alert("请先完成全部题目");
+            return;
+        }
+        let data = results[type];
+        let resultDiv = document.getElementById("result");
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `<h2>🏭 你的气质：${data.name}</h2><p>${data.desc}</p><p style="font-style:italic; margin-top:10px;">✍️ ${data.quote}</p>`;
+        resultDiv.scrollIntoView({ behavior: "smooth" });
+    }
+
+    render();
+    document.getElementById("submitBtn").addEventListener("click", showResult);
+</script>
+</body>
+</html>
